@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sow Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE8D9;
+    --card:#FFFDF6;
+    --ink:#26311F;
+    --ink-soft:#5B6350;
+    --line:#CFC7AC;
+    --leaf:#3F6B4A;
+    --leaf-dark:#2C4B34;
+    --soil:#8B5E3C;
+    --glass:#5C7CA6;
+    --mustard:#C99A2E;
+    --danger:#A6462F;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(38,49,31,0.06) 1px, transparent 0);
+    background-size:22px 22px;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:0 18px;}
+
+  header.top{padding:28px 18px 18px;text-align:left;}
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:2rem;
+    letter-spacing:-0.01em;
+    margin:0;
+    color:var(--leaf-dark);
+  }
+  .brand .stamp{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.68rem;
+    font-weight:600;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--soil);
+    border:1px solid var(--soil);
+    border-radius:20px;
+    padding:3px 9px;
+  }
+  header.top p{
+    margin:6px 0 0;
+    color:var(--ink-soft);
+    font-size:0.92rem;
+  }
+
+  .search-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px;
+    box-shadow:0 1px 0 rgba(38,49,31,0.04);
+  }
+  .search-input{
+    width:100%;
+    border:none;
+    background:transparent;
+    font-family:'Fraunces',serif;
+    font-size:1.15rem;
+    color:var(--ink);
+    outline:none;
+    padding:4px 2px;
+  }
+  .search-input::placeholder{color:#9a9784;font-family:'Inter',sans-serif;font-weight:400;font-size:1rem;}
+
+  .results{margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;}
+  .result-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:10px 12px;border-radius:10px;
+    background:var(--paper);
+    border:1px solid transparent;
+  }
+  .result-row .r-name{font-weight:600;font-size:0.95rem;}
+  .result-row .r-cat{font-size:0.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;}
+  .add-btn{
+    background:var(--leaf);color:#fff;border:none;border-radius:8px;
+    width:30px;height:30px;font-size:1.1rem;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .add-btn:active{background:var(--leaf-dark);}
+  .add-btn:disabled{background:#B7B196;cursor:default;}
+
+  section.block{margin-top:34px;}
+  .block-title{
+    font-family:'Fraunces',serif;font-weight:600;font-size:1.25rem;
+    color:var(--leaf-dark);margin:0 0 4px;
+  }
+  .block-sub{font-size:0.85rem;color:var(--ink-soft);margin:0 0 14px;}
+
+  .empty{
+    border:1.5px dashed var(--line);border-radius:var(--radius);
+    padding:26px 18px;text-align:center;color:var(--ink-soft);font-size:0.9rem;
+  }
+
+  .plant-card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:14px;
+  }
+  .plant-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .plant-card-head h3{
+    font-family:'Fraunces',serif;font-size:1.15rem;margin:0;font-weight:600;
+  }
+  .plant-card-head .r-cat{font-size:0.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.05em;}
+  .remove-btn{
+    background:none;border:none;color:var(--ink-soft);font-size:1.3rem;line-height:1;
+    cursor:pointer;padding:2px 4px;
+  }
+
+  .strip{margin-top:12px;}
+  .tip-box{
+    margin-top:12px;padding:10px 12px;background:#F2EEDD;border-left:3px solid var(--mustard);
+    border-radius:0 8px 8px 0;font-size:0.82rem;color:var(--ink-soft);line-height:1.4;
+  }
+  .tip-box b{color:var(--ink);font-weight:600;}
+  .cond-box{
+    margin-top:10px;display:flex;flex-direction:column;gap:4px;
+    font-size:0.8rem;color:var(--ink-soft);
+  }
+  .cond-box b{color:var(--ink);font-weight:600;}
+  .colour-row{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+  }
+  .colour-row label{font-size:0.85rem;font-weight:500;}
+  .colour-select{
+    font-family:'Inter',sans-serif;font-size:0.82rem;padding:5px 8px;
+    border-radius:7px;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+  }
+  .swatch-dot{
+    display:inline-block;width:10px;height:10px;border-radius:50%;
+    margin-right:7px;border:1px solid rgba(0,0,0,0.15);vertical-align:middle;
+  }
+  .strip-track{
+    display:grid;grid-template-columns:repeat(12,1fr);
+    border-radius:8px;overflow:hidden;height:16px;border:1px solid var(--line);
+  }
+  .strip-cell{position:relative;background:#fff;border-right:1px solid var(--line);}
+  .strip-cell:last-child{border-right:none;}
+  .strip-cell.indoor{background:var(--glass);}
+  .strip-cell.outdoor{background:var(--soil);}
+  .strip-cell.transplant{background:var(--leaf);}
+  .strip-labels{
+    display:grid;grid-template-columns:repeat(12,1fr);
+    font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:var(--ink-soft);
+    margin-top:4px;text-align:center;letter-spacing:-0.02em;
+  }
+  .legend{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap;}
+  .legend span{font-size:0.72rem;color:var(--ink-soft);display:flex;align-items:center;gap:5px;}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;}
+  .legend .li{background:var(--glass);} .legend .lo{background:var(--soil);} .legend .lt{background:var(--leaf);}
+
+  .succession-row{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:14px;padding-top:12px;border-top:1px solid var(--line);
+  }
+  .succession-row label{font-size:0.85rem;font-weight:500;}
+  .switch{position:relative;width:40px;height:22px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{
+    position:absolute;inset:0;background:#D9D3BE;border-radius:20px;cursor:pointer;transition:.15s;
+  }
+  .slider:before{
+    content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;
+    background:#fff;border-radius:50%;transition:.15s;
+  }
+  .switch input:checked + .slider{background:var(--leaf);}
+  .switch input:checked + .slider:before{transform:translateX(18px);}
+
+  .task-list{margin-top:12px;display:flex;flex-direction:column;gap:6px;}
+  .task{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--paper);border-radius:8px;padding:8px 10px;font-size:0.85rem;
+  }
+  .task.done{opacity:0.5;}
+  .task.done .t-date{text-decoration:line-through;}
+  .task .t-left{display:flex;align-items:center;gap:8px;}
+  .task-check{
+    width:17px;height:17px;flex-shrink:0;accent-color:var(--leaf);cursor:pointer;
+  }
+  .tag{
+    font-family:'IBM Plex Mono',monospace;font-size:0.62rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.04em;padding:2px 6px;border-radius:5px;color:#fff;
+  }
+  .tag.indoor{background:var(--glass);} .tag.outdoor{background:var(--soil);} .tag.transplant{background:var(--leaf);}
+  .t-date{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--ink-soft);}
+  .cal-btn{
+    background:none;border:1px solid var(--line);border-radius:7px;
+    font-size:0.72rem;padding:4px 8px;cursor:pointer;color:var(--ink);font-family:'Inter',sans-serif;
+  }
+  .cal-btn:active{background:var(--leaf);color:#fff;border-color:var(--leaf);}
+
+  .add-all{
+    margin-top:12px;width:100%;background:var(--leaf-dark);color:#fff;border:none;
+    border-radius:9px;padding:11px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .add-all:active{opacity:0.85;}
+
+  .month-group{margin-bottom:18px;}
+  .month-head{
+    font-family:'IBM Plex Mono',monospace;font-size:0.72rem;font-weight:600;
+    letter-spacing:0.08em;text-transform:uppercase;color:var(--soil);
+    border-bottom:1px solid var(--line);padding-bottom:5px;margin-bottom:8px;
+  }
+  .upcoming-row{
+    display:flex;align-items:center;gap:10px;padding:7px 0;font-size:0.88rem;
+  }
+  .upcoming-row.done{opacity:0.45;}
+  .upcoming-row.done .name{text-decoration:line-through;}
+  .upcoming-row .day{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--ink);width:26px;flex-shrink:0;
+  }
+  .upcoming-row .name{font-weight:500;flex:1;}
+  .upcoming-row .name small{display:block;font-weight:400;color:var(--ink-soft);font-size:0.72rem;}
+
+  footer{
+    text-align:center;color:var(--ink-soft);font-size:0.75rem;margin-top:40px;padding:0 24px;
+  }
+
+  .bed{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:16px;
+  }
+  .bed-title{
+    font-family:'Fraunces',serif;font-weight:600;font-size:1rem;margin:0 0 3px;color:var(--leaf-dark);
+  }
+  .bed-sub{font-size:0.76rem;color:var(--ink-soft);margin:0 0 12px;}
+  .bed-tier{margin-bottom:10px;}
+  .bed-tier-label{
+    font-family:'IBM Plex Mono',monospace;font-size:0.62rem;text-transform:uppercase;
+    letter-spacing:0.07em;color:var(--soil);margin-bottom:6px;
+  }
+  .bed-chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .plant-chip{
+    display:flex;align-items:center;gap:6px;
+    background:var(--paper);border:1px solid var(--line);border-radius:20px;
+    padding:5px 11px 5px 8px;font-size:0.78rem;font-weight:500;
+  }
+  .notes-box{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;
+  }
+  .notes-box h4{
+    font-family:'Fraunces',serif;font-size:0.95rem;margin:0 0 8px;color:var(--leaf-dark);
+  }
+  .notes-box ul{margin:0;padding-left:18px;}
+  .notes-box li{font-size:0.85rem;color:var(--ink-soft);margin-bottom:7px;line-height:1.4;}
+  .notes-box li:last-child{margin-bottom:0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Sow Journal</h1>
+      <span class="stamp">UK · General guide</span>
+    </div>
+    <p>Search a plant, get indoor / outdoor sowing windows, and send the dates to your calendar.</p>
+  </header>
+
+  <div class="search-card">
+    <input class="search-input" id="searchInput" type="text" placeholder="Search a seed or plant…" autocomplete="off">
+    <div class="results" id="results"></div>
+  </div>
+
+  <section class="block">
+    <h2 class="block-title">My sowing list</h2>
+    <p class="block-sub">Tracked plants with suggested dates for this year.</p>
+    <div id="myList"></div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">Upcoming</h2>
+    <p class="block-sub">Every suggested task, in order, across your list.</p>
+    <div id="upcoming"></div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">Sown</h2>
+    <p class="block-sub">Everything you've marked as sown. Remove anything you didn't mean to tick.</p>
+    <div id="sownLog"></div>
+  </section>
+
+  <section class="block">
+    <h2 class="block-title">Suggested layout</h2>
+    <p class="block-sub">A rough planting-out plan based on light needs, height, colour and what's sown so far.</p>
+    <div id="layout"></div>
+  </section>
+
+  <footer>Dates and conditions are general UK rule-of-thumb guidance — adjust for your local frost dates, microclimate and soil.</footer>
+</div>
+
+<script>
+// ---------- Plant database (months, 1-12, UK general guidance) ----------
+const PLANTS = [
+  {id:'tomato', name:'Tomato', cat:'Vegetable', phases:{indoor:[2,3,4], transplant:[5,6]}, sun:'Full sun, sheltered', soil:'Fertile, moist, well-drained', height:'tall'},
+  {id:'chilli', name:'Chilli / Pepper', cat:'Vegetable', phases:{indoor:[1,2,3], transplant:[5,6]}, sun:'Full sun, sheltered', soil:'Fertile, moist, well-drained', height:'medium'},
+  {id:'aubergine', name:'Aubergine', cat:'Vegetable', phases:{indoor:[2,3], transplant:[5,6]}, sun:'Full sun, sheltered', soil:'Fertile, moist, well-drained', height:'medium'},
+  {id:'courgette', name:'Courgette', cat:'Vegetable', phases:{indoor:[4], outdoor:[5,6]}, sun:'Full sun', soil:'Fertile, moisture-retentive, well-drained', height:'medium'},
+  {id:'squash', name:'Squash / Pumpkin', cat:'Vegetable', phases:{indoor:[4], outdoor:[5]}, sun:'Full sun', soil:'Rich, fertile, well-drained', height:'short'},
+  {id:'cucumber', name:'Cucumber', cat:'Vegetable', phases:{indoor:[3,4], transplant:[5,6]}, sun:'Full sun, sheltered', soil:'Fertile, moist, well-drained', height:'tall'},
+  {id:'runnerbean', name:'Runner Bean', cat:'Vegetable', phases:{indoor:[4], outdoor:[5,6]}, sun:'Full sun', soil:'Fertile, moisture-retentive, well-drained', height:'tall'},
+  {id:'frenchbean', name:'French Bean', cat:'Vegetable', phases:{outdoor:[5,6,7]}, sun:'Full sun', soil:'Fertile, well-drained', height:'medium'},
+  {id:'broadbean', name:'Broad Bean', cat:'Vegetable', phases:{outdoor:[2,3,4,10,11]}, sun:'Full sun', soil:'Fertile, well-drained', height:'tall'},
+  {id:'pea', name:'Pea', cat:'Vegetable', phases:{outdoor:[2,3,4,5,6]}, sun:'Full sun', soil:'Fertile, moisture-retentive, well-drained', height:'tall'},
+  {id:'carrot', name:'Carrot', cat:'Vegetable', phases:{outdoor:[3,4,5,6,7]}, sun:'Full sun', soil:'Light, stone-free, free-draining', height:'short'},
+  {id:'beetroot', name:'Beetroot', cat:'Vegetable', phases:{outdoor:[3,4,5,6,7]}, sun:'Full sun', soil:'Fertile, well-drained', height:'short'},
+  {id:'radish', name:'Radish', cat:'Vegetable', phases:{outdoor:[3,4,5,6,7,8]}, sun:'Full sun', soil:'Light, fertile, free-draining', height:'short'},
+  {id:'lettuce', name:'Lettuce', cat:'Vegetable', phases:{indoor:[2,3], outdoor:[3,4,5,6,7,8]}, sun:'Full sun or part shade', soil:'Moist, fertile, well-drained', height:'short'},
+  {id:'spinach', name:'Spinach', cat:'Vegetable', phases:{outdoor:[3,4,5,6,7,8,9]}, sun:'Full sun or part shade', soil:'Fertile, moisture-retentive', height:'short'},
+  {id:'rocket', name:'Rocket', cat:'Vegetable', phases:{outdoor:[3,4,5,6,7,8,9]}, sun:'Full sun or part shade', soil:'Moist, fertile, well-drained', height:'short'},
+  {id:'springonion', name:'Spring Onion', cat:'Vegetable', phases:{outdoor:[3,4,5,6,7]}, sun:'Full sun', soil:'Fertile, well-drained', height:'short'},
+  {id:'onion', name:'Onion (sets)', cat:'Vegetable', phases:{outdoor:[3,4]}, sun:'Full sun', soil:'Fertile, free-draining', height:'short'},
+  {id:'leek', name:'Leek', cat:'Vegetable', phases:{indoor:[2,3], transplant:[5,6]}, sun:'Full sun', soil:'Fertile, moisture-retentive, well-drained', height:'medium'},
+  {id:'garlic', name:'Garlic', cat:'Vegetable', phases:{outdoor:[10,11,2,3]}, sun:'Full sun', soil:'Free-draining, fertile', height:'short'},
+  {id:'potatoearly', name:'Potato (early)', cat:'Vegetable', phases:{outdoor:[3,4]}, sun:'Full sun', soil:'Fertile, well-drained, slightly acidic', height:'medium'},
+  {id:'potatomain', name:'Potato (maincrop)', cat:'Vegetable', phases:{outdoor:[4]}, sun:'Full sun', soil:'Fertile, well-drained, slightly acidic', height:'medium'},
+  {id:'sweetcorn', name:'Sweetcorn', cat:'Vegetable', phases:{indoor:[4,5], outdoor:[5,6]}, sun:'Full sun, sheltered', soil:'Fertile, moisture-retentive, well-drained', height:'tall'},
+  {id:'kale', name:'Kale', cat:'Vegetable', phases:{indoor:[3,4], outdoor:[4,5,6,7]}, sun:'Full sun or part shade', soil:'Fertile, firm, well-drained', height:'medium'},
+  {id:'cabbage', name:'Cabbage (summer)', cat:'Vegetable', phases:{indoor:[2,3,4], transplant:[5,6]}, sun:'Full sun', soil:'Fertile, firm, moisture-retentive', height:'medium'},
+  {id:'broccoli', name:'Broccoli / Calabrese', cat:'Vegetable', phases:{indoor:[3,4], outdoor:[4,5,6]}, sun:'Full sun', soil:'Fertile, firm, moisture-retentive', height:'medium'},
+  {id:'sprouts', name:'Brussels Sprouts', cat:'Vegetable', phases:{indoor:[3,4], outdoor:[4,5]}, sun:'Full sun, sheltered', soil:'Fertile, firm, moisture-retentive', height:'tall'},
+  {id:'parsnip', name:'Parsnip', cat:'Vegetable', phases:{outdoor:[3,4,5]}, sun:'Full sun', soil:'Deep, light, stone-free, well-drained', height:'short'},
+  {id:'chard', name:'Swiss Chard', cat:'Vegetable', phases:{indoor:[3,4], outdoor:[4,5,6,7]}, sun:'Full sun or part shade', soil:'Fertile, moisture-retentive, well-drained', height:'medium'},
+  {id:'basil', name:'Basil', cat:'Herb', phases:{indoor:[3,4,5], transplant:[6]}, sun:'Full sun, sheltered', soil:'Fertile, moist, well-drained', height:'short'},
+  {id:'coriander', name:'Coriander', cat:'Herb', phases:{outdoor:[4,5,6,7,8]}, sun:'Full sun or part shade', soil:'Free-draining, moderately fertile', height:'short'},
+  {id:'parsley', name:'Parsley', cat:'Herb', phases:{indoor:[2,3,4], outdoor:[4,5,6,7]}, sun:'Full sun or part shade', soil:'Moist, fertile, well-drained', height:'short'},
+  {id:'chives', name:'Chives', cat:'Herb', phases:{indoor:[2,3], outdoor:[3,4,5]}, sun:'Full sun or part shade', soil:'Moist, fertile, well-drained', height:'short'},
+  {id:'dill', name:'Dill', cat:'Herb', phases:{outdoor:[4,5,6,7]}, sun:'Full sun, sheltered', soil:'Moderately fertile, well-drained', height:'medium'},
+  {id:'sunflower', name:'Sunflower', cat:'Flower', phases:{indoor:[4], outdoor:[5], transplant:[5,6]}, tip:"Sow ~2cm deep, one seed per pot; young plants are a magnet for slugs so protect until sturdy.", sun:'Full sun', soil:'Fertile, moist, well-drained', height:'tall'},
+  {id:'sweetpea', name:'Sweet Pea', cat:'Flower', phases:{indoor:[10,11,2,3], outdoor:[4]}, tip:"Hard seed coat — soak overnight or nick with a nail file opposite the 'eye' to speed germination.", sun:'Full sun', soil:'Fertile, moisture-retentive, well-drained', height:'tall'},
+  {id:'nasturtium', name:'Nasturtium', cat:'Flower', phases:{indoor:[4], outdoor:[4,5,6]}, tip:"Direct sow 1-2cm deep where possible — the fragile roots resent being transplanted.", sun:'Full sun', soil:'Poor-to-moderate fertility, well-drained (rich soil = leaves, not flowers)', height:'short'},
+  {id:'cosmos', name:'Cosmos', cat:'Flower', phases:{indoor:[3,4], transplant:[5,6]}, tip:"Sow on the surface and cover with just a few mm of compost — light helps it along.", sun:'Full sun', soil:'Moderately fertile, well-drained', height:'medium'},
+  {id:'marigold', name:'French Marigold', cat:'Flower', phases:{indoor:[3,4], transplant:[5,6]}, tip:"Cover lightly; it's frost-tender so don't rush sowing until you can keep it warm.", sun:'Full sun', soil:'Moderately fertile, well-drained', height:'short'},
+
+  // ---- Bee-friendly annuals & perennials ----
+  {id:'borage', name:'Borage', cat:'Flower', lifecycle:'annual', bee:true, phases:{indoor:[3,4], outdoor:[4,5,6]}, tip:"Direct sow where it's to flower — the long taproot dislikes being moved. Self-seeds freely once established.", sun:'Full sun', soil:'Poor-to-average, well-drained', height:'medium'},
+  {id:'phacelia', name:'Phacelia', cat:'Flower', lifecycle:'annual', bee:true, phases:{outdoor:[3,4,5,6,7,8,9]}, tip:"Direct sow and rake in lightly; germinates quickly and doesn't like being transplanted.", sun:'Full sun', soil:'Well-drained, tolerates poor soil', height:'medium'},
+  {id:'fieldpoppy', name:'Field Poppy', cat:'Flower', lifecycle:'annual', bee:true, phases:{outdoor:[3,4,9]}, tip:"Surface sow and press in gently — do not cover, the tiny seeds need light to germinate.", sun:'Full sun', soil:'Well-drained, tolerates poor soil', height:'medium'},
+  {id:'cornflower', name:'Cornflower', cat:'Flower', lifecycle:'annual', bee:true, phases:{outdoor:[3,4,9]}, tip:"Scatter on the surface and press in but leave uncovered — light triggers germination.", sun:'Full sun', soil:'Well-drained, poor-to-moderate fertility', height:'medium'},
+  {id:'calpoppy', name:'California Poppy', cat:'Flower', lifecycle:'annual', bee:true, phases:{outdoor:[4,5]}, tip:"Cover very lightly (about 5mm); resents root disturbance, so sow direct rather than transplant.", sun:'Full sun', soil:'Poor, free-draining, sandy', height:'short'},
+  {id:'calendula', name:'Calendula (Pot Marigold)', cat:'Flower', lifecycle:'annual', bee:true, phases:{indoor:[3,4], outdoor:[4,5]}, tip:"Cover lightly with soil; fairly cold-tolerant, so can go in a little earlier than most tender annuals.", sun:'Full sun', soil:'Any well-drained soil', height:'short'},
+  {id:'zinnia', name:'Zinnia', cat:'Flower', lifecycle:'annual', bee:true, phases:{indoor:[4], transplant:[5,6]}, tip:"Sow in modules and cover lightly; roots dislike disturbance, so handle seedlings carefully when potting on.", sun:'Full sun', soil:'Fertile, well-drained', height:'medium'},
+  {id:'alyssum', name:'Sweet Alyssum', cat:'Flower', lifecycle:'annual', bee:true, phases:{indoor:[3], outdoor:[4,5]}, tip:"Surface sow and don't cover — the seeds need light to germinate.", sun:'Full sun', soil:'Free-draining, tolerates poor soil', height:'short'},
+  {id:'ammi', name:"Ammi majus (Bishop's Flower)", cat:'Flower', lifecycle:'annual', bee:true, phases:{indoor:[3,4], outdoor:[9]}, tip:"Sow into modules to protect the fine roots, and only just cover the seed.", sun:'Full sun', soil:'Moderately fertile, well-drained', height:'tall'},
+  {id:'cerinthe', name:'Cerinthe (Honeywort)', cat:'Flower', lifecycle:'annual', bee:true, phases:{indoor:[3,4], outdoor:[4,5]}, tip:"Large seed — sow about 1cm deep, ideally in modules, as it dislikes root disturbance.", sun:'Full sun', soil:'Well-drained, moderate fertility', height:'medium'},
+  {id:'lavender', name:'Lavender', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], outdoor:[4,5]}, tip:"Surface sow and press in; a spell in the fridge (3-4 weeks) before sowing improves what can be slow, patchy germination.", sun:'Full sun', soil:'Free-draining, poor-to-moderate fertility, alkaline tolerant', height:'medium'},
+  {id:'echinacea', name:'Echinacea (Coneflower)', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], outdoor:[4,5]}, tip:"Benefits from 4-6 weeks of cold, moist stratification in the fridge before sowing for reliable germination.", sun:'Full sun', soil:'Fertile, well-drained', height:'medium'},
+  {id:'foxglove', name:'Foxglove', cat:'Flower', lifecycle:'perennial', bee:true, phases:{outdoor:[5,6,7]}, tip:"Surface sow, do not cover — needs light to germinate. All parts of the plant are toxic, so wash hands after handling.", sun:'Part shade', soil:'Moist, fertile, humus-rich', height:'tall'},
+  {id:'verbena', name:'Verbena bonariensis', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], transplant:[5,6]}, tip:"Barely cover the seed and keep warm; germination is slow and erratic (2-4 weeks) — a spell in the fridge can help if nothing shows.", sun:'Full sun', soil:'Free-draining, moderate fertility', height:'tall'},
+  {id:'achillea', name:'Achillea (Yarrow)', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[3,4], outdoor:[4,5]}, tip:"Surface sow and press in lightly — needs light to germinate.", sun:'Full sun', soil:'Free-draining, poor-to-moderate fertility', height:'medium'},
+  {id:'salvia', name:'Salvia (perennial)', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], transplant:[5]}, tip:"Cover very lightly and keep warm; pot on as soon as true leaves appear.", sun:'Full sun', soil:'Free-draining, fertile', height:'medium'},
+  {id:'geranium', name:'Hardy Geranium (Cranesbill)', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], outdoor:[4,5]}, tip:"Sow about 5mm deep; fresh seed germinates far more reliably than old, so use within a year of collecting or buying.", sun:'Full sun or part shade', soil:'Moist, well-drained', height:'short'},
+  {id:'aquilegia', name:'Aquilegia (Columbine)', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], outdoor:[5,6]}, tip:"Surface sow, don't cover — needs light, and a spell of winter cold (3-4 weeks in the fridge) markedly improves germination.", sun:'Full sun or part shade', soil:'Moist, well-drained', height:'medium'},
+  {id:'scabious', name:'Scabious', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[3,4], outdoor:[4,5]}, tip:"Cover lightly; germinates most evenly in a cool spot rather than a hot windowsill.", sun:'Full sun', soil:'Free-draining, chalky/alkaline tolerant', height:'medium'},
+  {id:'catmint', name:'Catmint (Nepeta)', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], outdoor:[4,5]}, tip:"Surface sow and press in; a cold spell beforehand (in the fridge) improves germination, much like lavender.", sun:'Full sun', soil:'Free-draining, poor-to-moderate fertility', height:'short'},
+  {id:'jacobsladder', name:"Jacob's Ladder", cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3,4], outdoor:[4,5]}, tip:"Surface sow, press in lightly — needs light, and a cool spell beforehand helps it germinate evenly.", sun:'Full sun or part shade', soil:'Moist, well-drained', height:'medium'},
+  {id:'lupin', name:'Lupin', cat:'Flower', lifecycle:'perennial', bee:true, phases:{indoor:[2,3], outdoor:[4,5]}, tip:"Hard seed coat — nick with a knife or rub with sandpaper, then soak 12-24 hours before sowing.", sun:'Full sun', soil:'Well-drained, slightly acidic, poor-to-moderate fertility', height:'tall'},
+];
+
+const PHASE_LABEL = {indoor:'Sow indoors', outdoor:'Sow outdoors', transplant:'Transplant / plant out'};
+const MONTH_ABBR = ['J','F','M','A','M','J','J','A','S','O','N','D'];
+
+function metaLine(p){
+  const parts = [p.cat];
+  if (p.lifecycle) parts.push(p.lifecycle[0].toUpperCase()+p.lifecycle.slice(1));
+  if (p.bee) parts.push('🐝 Bee-friendly');
+  return parts.join(' · ');
+}
+
+// ---------- Colour palette ----------
+const COLOURS = ['White','Cream','Yellow','Orange','Red','Pink','Purple','Blue','Mixed'];
+const COLOUR_HEX = {
+  White:'#F7F5EE', Cream:'#F0E3B8', Yellow:'#E8C33C', Orange:'#DB8A3C',
+  Red:'#B84C3E', Pink:'#DE94AC', Purple:'#7C5CA6', Blue:'#5C7CA6', Mixed:'#B7B196'
+};
+function colourSwatch(colour){
+  const hex = COLOUR_HEX[colour] || '#D9D3BE';
+  return `<span class="swatch-dot" style="background:${hex}" title="${colour||'No colour set'}"></span>`;
+}
+
+// ---------- State ----------
+const NOW = new Date();
+const LS_LIST = 'sowjournal_list_v2';
+
+function loadList(){ try{ return JSON.parse(localStorage.getItem(LS_LIST)) || []; }catch(e){ return []; } }
+function saveList(list){ localStorage.setItem(LS_LIST, JSON.stringify(list)); }
+
+let myList = loadList();     // [{plantId, succession, colour, tasks:[{id,phase,date(ISO),done}]}]
+
+function genId(){ return Math.random().toString(36).slice(2,10); }
+
+// ---------- Date logic ----------
+function nextOccurrence(month, day){
+  let year = NOW.getFullYear();
+  const candidate = new Date(year, month-1, day);
+  const today = new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+  if (candidate < today) year += 1;
+  return new Date(year, month-1, day);
+}
+
+// One task per phase: the earliest upcoming date
+function generateSingleTasks(plant){
+  return Object.keys(plant.phases).map(phase=>{
+    const months = plant.phases[phase];
+    let best = null;
+    months.forEach(m=>{
+      const d = nextOccurrence(m, 15);
+      if (!best || d < best) best = d;
+    });
+    return { id:genId(), phase, date: best.toISOString().slice(0,10), done:false };
+  });
+}
+
+// Every fortnight across each phase's window
+function generateSuccessionTasks(plant){
+  const tasks = [];
+  Object.keys(plant.phases).forEach(phase=>{
+    plant.phases[phase].forEach(m=>{
+      [1,15].forEach(d=>{
+        tasks.push({ id:genId(), phase, date: nextOccurrence(m,d).toISOString().slice(0,10), done:false });
+      });
+    });
+  });
+  return tasks;
+}
+
+function fmtDate(iso){
+  const d = new Date(iso+'T00:00:00');
+  return d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+}
+
+// ---------- ICS ----------
+function icsDate(iso){
+  return iso.replace(/-/g,'');
+}
+function buildICS(events){
+  let out = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Sow Journal//EN\r\nCALSCALE:GREGORIAN\r\n';
+  events.forEach(ev=>{
+    const stamp = icsDate(new Date().toISOString().slice(0,10))+'T000000Z';
+    out += 'BEGIN:VEVENT\r\n';
+    out += `UID:${ev.uid}@sowjournal\r\n`;
+    out += `DTSTAMP:${stamp}\r\n`;
+    out += `DTSTART;VALUE=DATE:${icsDate(ev.date)}\r\n`;
+    out += `SUMMARY:${ev.summary}\r\n`;
+    out += `DESCRIPTION:${ev.desc || ''}\r\n`;
+    out += 'END:VEVENT\r\n';
+  });
+  out += 'END:VCALENDAR\r\n';
+  return out;
+}
+function downloadICS(filename, events){
+  const blob = new Blob([buildICS(events)], {type:'text/calendar'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ---------- Rendering: search ----------
+const searchInput = document.getElementById('searchInput');
+const resultsEl = document.getElementById('results');
+
+function renderResults(query){
+  resultsEl.innerHTML = '';
+  if (!query){ return; }
+  const q = query.trim().toLowerCase();
+  const matches = PLANTS.filter(p=>p.name.toLowerCase().includes(q));
+  if (matches.length===0){
+    resultsEl.innerHTML = `<div class="empty" style="padding:14px;">No matches. Try a different name.</div>`;
+    return;
+  }
+  matches.slice(0,12).forEach(p=>{
+    const already = myList.some(item=>item.plantId===p.id);
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML = `
+      <div><div class="r-name">${p.name}</div><div class="r-cat">${metaLine(p)}</div></div>
+      <button class="add-btn" ${already?'disabled':''}>${already?'✓':'+'}</button>
+    `;
+    row.querySelector('button').addEventListener('click', ()=>{
+      if (already) return;
+      myList.push({plantId:p.id, succession:false, colour:'', tasks: generateSingleTasks(p)});
+      saveList(myList);
+      searchInput.value=''; resultsEl.innerHTML='';
+      renderAll();
+    });
+    resultsEl.appendChild(row);
+  });
+}
+searchInput.addEventListener('input', e=>renderResults(e.target.value));
+
+// ---------- Rendering: my list ----------
+const myListEl = document.getElementById('myList');
+
+function renderStrip(plant){
+  const cells = [];
+  for (let m=1;m<=12;m++){
+    let cls = '';
+    Object.keys(plant.phases).forEach(phase=>{
+      if (plant.phases[phase].includes(m)) cls = phase;
+    });
+    cells.push(`<div class="strip-cell ${cls}"></div>`);
+  }
+  const labels = MONTH_ABBR.map(l=>`<div>${l}</div>`).join('');
+  const usedPhases = Object.keys(plant.phases);
+  const legend = usedPhases.map(ph=>`<span><i class="l${ph[0]}"></i>${PHASE_LABEL[ph]}</span>`).join('');
+  return `
+    <div class="strip">
+      <div class="strip-track">${cells.join('')}</div>
+      <div class="strip-labels">${labels}</div>
+      <div class="legend">${legend}</div>
+    </div>`;
+}
+
+function renderMyList(){
+  myListEl.innerHTML = '';
+  if (myList.length===0){
+    myListEl.innerHTML = `<div class="empty">Nothing tracked yet — search above to add your first plant.</div>`;
+    return;
+  }
+  myList.forEach(item=>{
+    const plant = PLANTS.find(p=>p.id===item.plantId);
+    if (!plant) return;
+    const tasks = item.tasks.slice().sort((a,b)=>a.date.localeCompare(b.date));
+
+    const card = document.createElement('div');
+    card.className = 'plant-card';
+    card.innerHTML = `
+      <div class="plant-card-head">
+        <div><h3>${colourSwatch(item.colour)}${plant.name}</h3><div class="r-cat">${metaLine(plant)}</div></div>
+        <button class="remove-btn" title="Remove">×</button>
+      </div>
+      ${renderStrip(plant)}
+      ${plant.tip ? `<div class="tip-box">🌱 <b>Sowing tip:</b> ${plant.tip}</div>` : ''}
+      <div class="cond-box">
+        <span>☀️ <b>${plant.sun}</b></span>
+        <span>🌍 <b>${plant.soil}</b></span>
+      </div>
+      <div class="colour-row">
+        <label>Flower / plant colour</label>
+        <select class="colour-select">
+          <option value="">Not set</option>
+          ${COLOURS.map(c=>`<option value="${c}" ${item.colour===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="succession-row">
+        <label>Succession sowing</label>
+        <label class="switch">
+          <input type="checkbox" ${item.succession?'checked':''}>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="task-list"></div>
+      <button class="add-all">Add all to calendar</button>
+    `;
+
+    card.querySelector('.remove-btn').addEventListener('click', ()=>{
+      myList = myList.filter(i=>i.plantId!==item.plantId);
+      saveList(myList);
+      renderAll();
+    });
+
+    card.querySelector('.colour-select').addEventListener('change', e=>{
+      item.colour = e.target.value;
+      saveList(myList);
+      renderAll();
+    });
+
+    card.querySelector('.switch input').addEventListener('change', e=>{
+      item.succession = e.target.checked;
+      if (item.succession){
+        // Merge in any succession dates not already present, rather than
+        // wiping out what's there — so nothing already generated disappears.
+        generateSuccessionTasks(plant).forEach(st=>{
+          const exists = item.tasks.some(t=>t.phase===st.phase && t.date===st.date);
+          if (!exists) item.tasks.push(st);
+        });
+      }
+      saveList(myList);
+      renderAll();
+    });
+
+    const taskListEl = card.querySelector('.task-list');
+    tasks.forEach(t=>{
+      const row = document.createElement('div');
+      row.className = 'task' + (t.done ? ' done' : '');
+      row.innerHTML = `
+        <div class="t-left">
+          <input type="checkbox" class="task-check" ${t.done?'checked':''} title="Mark as sown">
+          <span class="tag ${t.phase}">${t.phase}</span>
+          <span class="t-date">${fmtDate(t.date)}</span>
+        </div>
+        <button class="cal-btn">Add to calendar</button>
+      `;
+      row.querySelector('.task-check').addEventListener('change', e=>{
+        t.done = e.target.checked;
+        saveList(myList);
+        renderAll();
+      });
+      row.querySelector('.cal-btn').addEventListener('click', ()=>{
+        downloadICS(`${plant.name.replace(/\s+/g,'-')}-${t.phase}.ics`, [{
+          uid:t.id, date:t.date,
+          summary:`${PHASE_LABEL[t.phase]}: ${plant.name}`,
+          desc:`Sow Journal reminder for ${plant.name}`
+        }]);
+      });
+      taskListEl.appendChild(row);
+    });
+
+    card.querySelector('.add-all').addEventListener('click', ()=>{
+      const events = tasks.map(t=>({
+        uid: t.id, date:t.date,
+        summary:`${PHASE_LABEL[t.phase]}: ${plant.name}`,
+        desc:`Sow Journal reminder for ${plant.name}`
+      }));
+      downloadICS(`${plant.name.replace(/\s+/g,'-')}-all.ics`, events);
+    });
+
+    myListEl.appendChild(card);
+  });
+}
+
+// ---------- Rendering: upcoming ----------
+const upcomingEl = document.getElementById('upcoming');
+
+function renderUpcoming(){
+  upcomingEl.innerHTML = '';
+  let all = [];
+  myList.forEach(item=>{
+    const plant = PLANTS.find(p=>p.id===item.plantId);
+    if (!plant) return;
+    item.tasks.filter(t=>!t.done).forEach(t=>{
+      all.push({plant, item, task:t});
+    });
+  });
+  if (all.length===0){
+    upcomingEl.innerHTML = `<div class="empty">Add plants to your list to see upcoming tasks here.</div>`;
+    return;
+  }
+  all.sort((a,b)=>a.task.date.localeCompare(b.task.date));
+
+  const groups = {};
+  all.forEach(t=>{
+    const key = new Date(t.task.date+'T00:00:00').toLocaleDateString('en-GB',{month:'long', year:'numeric'});
+    if (!groups[key]) groups[key]=[];
+    groups[key].push(t);
+  });
+
+  Object.keys(groups).forEach(key=>{
+    const g = document.createElement('div');
+    g.className = 'month-group';
+    g.innerHTML = `<div class="month-head">${key}</div>`;
+    groups[key].forEach(({plant,item,task})=>{
+      const row = document.createElement('div');
+      row.className = 'upcoming-row';
+      row.innerHTML = `
+        <input type="checkbox" class="task-check" title="Mark as sown">
+        ${colourSwatch(item.colour)}
+        <div class="day">${new Date(task.date+'T00:00:00').getDate()}</div>
+        <div class="name">${plant.name}<small>${PHASE_LABEL[task.phase]}</small></div>
+        <span class="tag ${task.phase}">${task.phase}</span>
+      `;
+      row.querySelector('.task-check').addEventListener('change', e=>{
+        task.done = e.target.checked;
+        saveList(myList);
+        renderAll();
+      });
+      g.appendChild(row);
+    });
+    upcomingEl.appendChild(g);
+  });
+}
+
+// ---------- Rendering: sown log ----------
+const sownEl = document.getElementById('sownLog');
+
+function renderSown(){
+  sownEl.innerHTML = '';
+  let all = [];
+  myList.forEach(item=>{
+    const plant = PLANTS.find(p=>p.id===item.plantId);
+    if (!plant) return;
+    item.tasks.filter(t=>t.done).forEach(t=>{
+      all.push({plant, item, task:t});
+    });
+  });
+  if (all.length===0){
+    sownEl.innerHTML = `<div class="empty">Nothing marked as sown yet — tick a task off above once you've sown it.</div>`;
+    return;
+  }
+  all.sort((a,b)=>b.task.date.localeCompare(a.task.date));
+  all.forEach(({plant,item,task})=>{
+    const row = document.createElement('div');
+    row.className = 'upcoming-row';
+    row.innerHTML = `
+      ${colourSwatch(item.colour)}
+      <div class="name">${plant.name}<small>${PHASE_LABEL[task.phase]} · ${fmtDate(task.date)}</small></div>
+      <span class="tag ${task.phase}">${task.phase}</span>
+      <button class="remove-btn" title="Remove from sown log">×</button>
+    `;
+    row.querySelector('.remove-btn').addEventListener('click', ()=>{
+      item.tasks = item.tasks.filter(t=>t.id!==task.id);
+      saveList(myList);
+      renderAll();
+    });
+    sownEl.appendChild(row);
+  });
+}
+
+// ---------- Rendering: suggested layout ----------
+const layoutEl = document.getElementById('layout');
+
+function renderLayout(){
+  const entries = myList
+    .map(item=>{ const plant = PLANTS.find(p=>p.id===item.plantId); return plant ? {plant,item} : null; })
+    .filter(Boolean);
+
+  layoutEl.innerHTML = '';
+  if (entries.length===0){
+    layoutEl.innerHTML = `<div class="empty">Add plants to your list and this section will suggest a planting-out layout for them.</div>`;
+    return;
+  }
+
+  const sunBucket = entries.filter(e=> !e.plant.sun.startsWith('Part shade'));
+  const shadeBucket = entries.filter(e=> e.plant.sun.startsWith('Part shade'));
+
+  function tierLabel(label, arr){
+    if (arr.length===0) return '';
+    const chips = arr.map(e=>`<div class="plant-chip">${colourSwatch(e.item.colour)}${e.plant.name}</div>`).join('');
+    return `<div class="bed-tier"><div class="bed-tier-label">${label}</div><div class="bed-chips">${chips}</div></div>`;
+  }
+  function renderBed(title, sub, list){
+    if (list.length===0) return '';
+    const tiers = {tall:[], medium:[], short:[]};
+    list.forEach(e=> tiers[e.plant.height || 'medium'].push(e));
+    return `<div class="bed">
+      <div class="bed-title">${title}</div>
+      <div class="bed-sub">${sub}</div>
+      ${tierLabel('Back row (tall)', tiers.tall)}
+      ${tierLabel('Middle (medium)', tiers.medium)}
+      ${tierLabel('Front / edging (short)', tiers.short)}
+    </div>`;
+  }
+
+  let html = '';
+  html += renderBed('☀️ Full sun bed', "Tallest at the back (or centre, for a bed you can walk all round), shortest at the front so nothing gets hidden.", sunBucket);
+  html += renderBed('🌤️ Part shade bed', "Same principle — height stepping down towards the front.", shadeBucket);
+
+  // ---- Design notes ----
+  const notes = [];
+
+  const colourCounts = {};
+  entries.forEach(e=>{ if (e.item.colour) colourCounts[e.item.colour] = (colourCounts[e.item.colour]||0)+1; });
+  const repeats = Object.keys(colourCounts).filter(c=>colourCounts[c]>=2);
+  if (repeats.length){
+    notes.push(`Repeat <b>${repeats.join(' and ')}</b> through the bed in threes rather than as one-offs — repetition reads as intentional and gives the planting rhythm.`);
+  }
+  const withColour = c => entries.filter(e=>e.item.colour===c).map(e=>e.plant.name);
+  if (colourCounts['Yellow'] && colourCounts['Purple']){
+    notes.push(`Yellow and purple are complementary — placing <b>${withColour('Yellow').join(', ')}</b> near <b>${withColour('Purple').join(', ')}</b> will make both pop.`);
+  }
+  if (colourCounts['Orange'] && colourCounts['Blue']){
+    notes.push(`Orange and blue are complementary too — use them as accents near each other rather than spreading them evenly through the bed.`);
+  }
+
+  const lifecycles = new Set(entries.map(e=>e.plant.lifecycle).filter(Boolean));
+  if (lifecycles.has('perennial') && lifecycles.has('annual')){
+    notes.push(`Use the <b>perennials</b> (${entries.filter(e=>e.plant.lifecycle==='perennial').map(e=>e.plant.name).join(', ')}) as the permanent backbone of the bed, and slot the <b>annuals</b> in around them to fill gaps and refresh the colour each year.`);
+  } else if (lifecycles.has('perennial')){
+    notes.push(`These perennials will bulk up over a few years — leave more space between them than feels right in year one.`);
+  }
+
+  const veg = entries.filter(e=>e.plant.cat==='Vegetable');
+  const beeFlowers = entries.filter(e=>e.plant.bee);
+  if (veg.length && beeFlowers.length){
+    notes.push(`Interplant a few bee-friendly flowers (${beeFlowers.slice(0,3).map(e=>e.plant.name).join(', ')}) among the vegetables rather than off to one side — better pollination for fruiting crops like beans, squash and courgette.`);
+  }
+
+  const has = id => entries.some(e=>e.plant.id===id);
+  if (has('tomato') && has('basil')) notes.push(`<b>Tomato + basil</b>: a classic pairing — basil is said to help tomato flavour, and its scent can confuse some pests.`);
+  if (has('carrot') && (has('onion') || has('springonion'))) notes.push(`<b>Carrot + onion</b>: interplant these — onion's scent helps mask carrots from carrot fly.`);
+  if (has('nasturtium') && veg.length) notes.push(`<b>Nasturtium</b> works as a "trap crop" near brassicas and beans — aphids and cabbage white caterpillars are drawn to it instead of your crop.`);
+  if ((has('marigold') || has('calendula')) && veg.length) notes.push(`French marigold and calendula are often grown alongside vegetables — thought to help deter some pests, and they'll definitely bring in pollinators.`);
+  if (has('borage') && veg.length) notes.push(`<b>Borage</b> is a strong pollinator draw — a plant or two near fruiting vegetables (beans, squash, courgette) can help pollination.`);
+
+  if (shadeBucket.length>0 && sunBucket.length>0){
+    notes.push(`You've got a mix of full-sun and part-shade plants — keep them in separate patches rather than mixed together, so neither ends up in the wrong spot.`);
+  }
+  notes.push(`Group plants with similar soil needs together where you can — it makes watering and feeding far simpler than treating every plant individually.`);
+
+  layoutEl.innerHTML = html + `<div class="notes-box"><h4>Design notes</h4><ul>${notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>`;
+}
+
+function renderAll(){
+  renderMyList();
+  renderUpcoming();
+  renderSown();
+  renderLayout();
+}
+
+renderAll();
+</script>
+</body>
+</html>
